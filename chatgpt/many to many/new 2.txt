@@ -1,0 +1,32 @@
+create a function many_to_many_DDL.
+many_to_many_DDL("cat dog bird", "pizza donut car") would return.
+
+CREATE TABLE CAT_DOG_BIRD_HAS_AND_BELONGS_TO_MANY_PIZZA_DONUT_CAR (
+    CAT_DOG_BIRD_HAS_AND_BELONGS_TO_MANY_PIZZA_DONUT_CAR_ID RAW(16) DEFAULT sys_guID() PRIMARY KEY,
+    CAT_DOG_BIRD_HAS_AND_BELONGS_TO_MANY_PIZZA_DONUT_CAR    VARCHAR2(1000) NOT NULL,
+    CONSTRAINT unique_joining_table_of_student_and_course UNIQUE ( CAT_DOG_BIRD_HAS_AND_BELONGS_TO_MANY_PIZZA_DONUT_CAR ),
+    --the not null constraint is important
+    CAT_DOG_BIRD_ID raw(16) not null,
+    PIZZA_DONUT_CAR_ID raw(16) not null,
+--we add 2 foreign key constraints for many to many relationship
+    FOREIGN KEY ( CAT_DOG_BIRD_ID )
+        REFERENCES CAT_DOG_BIRD ( CAT_DOG_BIRD_ID ),
+    FOREIGN KEY ( PIZZA_DONUT_CAR_ID )
+        REFERENCES PIZZA_DONUT_CAR ( PIZZA_DONUT_CAR_ID ),
+--we add a unique constraint
+UNIQUE ( CAT_DOG_BIRD_ID,PIZZA_DONUT_CAR_ID),
+    -- Additional columns for note and dates
+    note                                   VARCHAR2(4000),  -- General-purpose note field
+    date_created                           TIMESTAMP(9) WITH TIME ZONE DEFAULT systimestamp(9) NOT NULL,
+    date_updated                           TIMESTAMP(9) WITH TIME ZONE,
+        date_created_or_updated                TIMESTAMP(9) WITH TIME ZONE GENERATED ALWAYS AS ( coalesce(date_updated, date_created)
+        ) VIRTUAL
+);
+
+CREATE OR REPLACE TRIGGER trigger_set_date_updated_CAT_DOG_BIRD_HAS_AND_BELONGS_TO_MANY_PIZZA_DONUT_CAR BEFORE
+    UPDATE ON CAT_DOG_BIRD_HAS_AND_BELONGS_TO_MANY_PIZZA_DONUT_CAR
+    FOR EACH ROW
+BEGIN
+    :new.date_updated := systimestamp;
+END;
+/
